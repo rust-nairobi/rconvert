@@ -1,0 +1,2 @@
+ArgMatches { args: {}, subcommand: Some(SubCommand { name: "currency", matches: ArgMatches { args: {"value": MatchedArg { occurs: 1, vals: ["20.50"] }, "units": MatchedArg { occurs: 1, vals: ["usd"] }}, subcommand: None, usage: Some("USAGE:\n    rconvert currency --units <units> --value <value>") } }), usage: Some("USAGE:\n    rconvert [SUBCOMMAND]") }
+We made it here yes!!
