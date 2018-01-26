@@ -1,8 +1,7 @@
-extern crate reqwest;
-extern crate serde_json as json;
-
+use reqwest;
 use reqwest::Response;
 use std;
+use json;
 
 #[derive(Deserialize, Debug)]
 struct ExchangeRate {

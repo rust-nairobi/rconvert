@@ -1,29 +1,13 @@
 #[macro_use]
-extern crate error_chain;
-#[macro_use]
-extern crate serde_derive;
+extern crate clap;
 extern crate reqwest;
 extern crate serde_json as json;
-#[macro_use]
-extern crate clap;
+extern crate rconvert;
 
-use clap::{Arg, App, SubCommand};
-
-error_chain! {
-    foreign_links {
-        Network(reqwest::Error);
-        Io(::std::io::Error);
-        Json(json::Error);
-    }
-}
-
-mod currency;
-mod temperature;
-mod weight;
-
-use currency::{convert_currency};
-use temperature::{convert_temperature};
-use weight::{convert_weight};
+use clap::{Arg, App, SubCommand, ArgMatches};
+use rconvert::currency::{convert_currency};
+use rconvert::temperature::{convert_temperature};
+use rconvert::weight::{convert_weight};
 
 fn main() {
     let matches = App::new("rconvert")
@@ -82,36 +66,27 @@ fn main() {
 
     match matches.subcommand() {
         ("currency", Some(sub_m)) => {
-            let value: &str = sub_m.value_of("value").unwrap();
-            let units: &str = sub_m.value_of("units").unwrap();
-            let unit_elements: Vec<&str> = units.split("-").collect();
-
-            if let Some(convert_from) = unit_elements.get(0) {
-                if let Some(convert_to) = unit_elements.get(1) {
-                    convert_currency(value, convert_from, convert_to);
-                }
-            }
+            let (value, from, to) = get_conversion_options(sub_m);
+            convert_currency(&value, &from, &to);
         },
         ("temperature", Some(sub_m)) => {
-            let value: &str = sub_m.value_of("value").unwrap();
-            let units: &str = sub_m.value_of("units").unwrap();
-            let unit_elements: Vec<&str> = units.split("-").collect();
-            if let Some(convert_from) = unit_elements.get(0) {
-                if let Some(convert_to) = unit_elements.get(1) {
-                    convert_temperature(value, convert_from, convert_to);
-                }
-            }
+            let (value, from, to) = get_conversion_options(sub_m);
+            convert_temperature(&value, &from, &to);
         },
         ("weight", Some(sub_m)) => {
-            let value: &str = sub_m.value_of("value").unwrap();
-            let units: &str = sub_m.value_of("units").unwrap();
-            let unit_elements: Vec<&str> = units.split("-").collect();
-            if let Some(convert_from) = unit_elements.get(0) {
-                if let Some(convert_to) = unit_elements.get(1) {
-                    convert_weight(value, convert_from, convert_to);
-                }
-            }
+            let (value, from, to) = get_conversion_options(sub_m);
+            convert_weight(&value, &from, &to);
         },
         _ => println!("Unsupported conversion command"),
     };
+}
+
+fn get_conversion_options(sub_m: &ArgMatches) -> (String, String, String) {
+    let value: String = sub_m.value_of("value").unwrap().to_owned();
+    let units: String = sub_m.value_of("units").unwrap().to_owned();
+    let unit_elements: Vec<&str> = units.split("-").collect();
+    assert!(unit_elements.len() == 2);
+    let from: String = unit_elements[0].to_owned();
+    let to: String = unit_elements[1].to_owned();
+    (value, from, to)
 }
