@@ -1,44 +1,40 @@
-struct Temperature {
-    unit: String,
-    celsius_conversion_rate: f32,
-}
+use std;
 
 pub fn convert_temperature(value: &str, from: &str, to: &str) {
-    let celsius = Temperature {
-        unit: String::from("celsius"),
-        celsius_conversion_rate: 1.0,
+    let value: f32 = match value.trim().parse() {
+        Ok(num) => num,
+        Err(e) => {
+            eprintln!("error: {:?}", e);
+            std::process::exit(1);
+        },
     };
 
-    let fahrenheit = Temperature {
-        unit: String::from("fahrenheit"),
-        celsius_conversion_rate: 33.8,
-    };
-
-    let kelvin = Temperature {
-        unit: String::from("kelvin"),
-        celsius_conversion_rate: 274.8,
-    };
-
-    let result = match (from,to) {
+    let result = match (from, to) {
         ("c","f") => {
-            "Converting c to f"
+            let converted_amount: f32 = (value * 9.0/5.0) + 32.0;
+            String::from(format!("{}{} to {}\n{}{}", value, from, to, converted_amount, to))
         },
         ("f","c") => {
-            "Converting f to c"
+            let converted_amount: f32 = (value - 32.0) * 5.0/9.0;
+            String::from(format!("{}{} to {}\n{}{}", value, from, to, converted_amount, to))
         },
         ("c","k") => {
-            "Converting c to k"
+            let converted_amount: f32 = value + 273.15;
+            String::from(format!("{}{} to {}\n{}{}", value, from, to, converted_amount, to))
         },
         ("k","c") => {
-            "Converting k to c"
+            let converted_amount: f32 = value - 273.15;
+            String::from(format!("{}{} to {}\n{}{}", value, from, to, converted_amount, to))
         },
         ("k","f") => {
-            "Converting k to f"
+            let converted_amount: f32 = (value - 273.15) * (9.0/5.0) + 32.0;
+            String::from(format!("{}{} to {}\n{}{}", value, from, to, converted_amount, to))
         },
         ("f","k") => {
-            "Converting f to k"
+            let converted_amount: f32 = (value - 32.0) * (5.0/9.0) + 273.15;
+            String::from(format!("{}{} to {}\n{}{}", value, from, to, converted_amount, to))
         },
-        _ => "Unsupported temperature units"
+        _ => String::from("Unsupported temperature units")
     };
 
     println!("{}", result);
